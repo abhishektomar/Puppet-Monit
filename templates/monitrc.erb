@@ -1,0 +1,50 @@
+## This File is configure and maintain by Puppet "Monit" module.Any Change will be overwritten.
+set daemon  <%= monitinterval %>
+set logfile syslog facility log_daemon                       
+set idfile /var/.monit.id
+
+set mailserver <%= mailserver %> port <%= port %>
+
+    username <%= username %> password <%= password %>
+    using tlsv1
+    with timeout 30 seconds
+set alert monitor@example.com with reminder on 30 cycles
+set mail-format { 
+        from: monit-noreply@HOST #sender
+        subject: <%= fqdn %> -- Alert $EVENT $SERVICE
+}
+
+set eventqueue
+     basedir /var/cache/monit  # set the base directory where events will be stored
+     slots 300           # optionaly limit the queue size
+set httpd port 2812 and
+#     use address localhost  # only accept connection from localhost
+     allow 127.0.0.1        # allow localhost to connect to the server and
+     allow localhost        # allow localhost to connect to the server and
+     allow admin:monit      # require user 'admin' with password 'monit'
+     allow @monit           # allow users of group 'monit' to connect (rw)
+     
+check system <%= hostname  %>
+    if loadavg (1min) > 3 then alert
+    if loadavg (5min) > 6 then alert
+    if memory usage > 70% then alert
+    if cpu usage (user) > 70% then alert
+    if cpu usage (system) > 70% then alert
+    if cpu usage (wait) > 70% then alert
+<% if rootfs.any? %>
+check filesystem rootfs with path <%= rootfs %>
+    if space usage > 80% for 5 times within 15 cycles then alert
+    if space usage > 95% then alert
+    if inode usage > 150000 then alert
+    if inode usage > 99% then alert
+group server
+<% end %>
+<% if datafs.any? %> 
+check filesystem datafs with path <%= datafs %>
+    if space usage > 80% for 5 times within 15 cycles then alert
+    if space usage > 95% then alert
+    if inode usage > 60% then alert
+    group server
+<% end %>    
+
+include /etc/monit/conf.d/*

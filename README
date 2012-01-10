@@ -1,0 +1,40 @@
+Puppet Monit Module --
+
+Module for configuring monit : -
+
+Tested on Debian GNU/Linux 6.0 Squeeze and Ubuntu 10.4 LTS with Puppet 2.6.
+
+Installation --
+
+Clone this repo to a monit directory under your Puppet modules directory:
+
+git clone git://github.com/abhishektomar/Puppet-Monit.git monit
+If you don't have a Puppet Master you can create a manifest file based on the notes below and run Puppet in stand-alone mode providing the module directory you cloned this repo to:
+
+puppet apply --modulepath=modules monit_test.pp
+
+Usage--
+
+To install and configure monit, include the module:
+
+include monit
+
+You can override defaults in the monit config by including the module with this special syntax:
+
+    monit::monitrc { "/etc/monit/monitrc":
+        rootfs => "/dev/sda1",
+        fqdn => "prod.example.com",
+        hostname => "example",
+		mailserver => "smtp.example.com",
+		username => "anything",
+		password => "anythnig",
+		datafs => "/dev/sdc"
+        }
+
+I have added following to monitor the ssh service --
+
+    monit::ssh { "/etc/monit/conf.d/ssh.monit":
+        sshdaemon => "ssh",
+        ssh_port => 22,
+        }
+

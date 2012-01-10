@@ -1,0 +1,7 @@
+## This file is maintained by puppet, any change will be overwritten.
+
+check process sshd with pidfile /var/run/sshd.pid
+   start program  "/etc/init.d/<%= sshdaemon %> start" with timeout 120 seconds
+   stop program  "/etc/init.d/<%= sshdaemon %> stop"
+   if failed port <%= ssh_port %> protocol ssh then restart
+   if 5 restarts within 5 cycles then timeout
